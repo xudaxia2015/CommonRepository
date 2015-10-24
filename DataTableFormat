@@ -1,0 +1,48 @@
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+
+namespace CommonRepository
+{
+    public class DataTableFormat
+    {
+        #region 根据列名去除重复行
+        /// <summary>
+        /// 根据列名去除重复行
+        /// </summary>
+        /// <param name="sourceTable">源 Table </param>
+        /// <param name="fieldName">列名(字段名)</param>
+        /// <returns></returns>
+        public static DataTable DistinctSomeColumn(DataTable sourceTable, params string[] fieldName)
+        {
+            if (fieldName == null || fieldName.Length == 0) return sourceTable;
+            return sourceTable.AsEnumerable().Distinct(new ColumnEquals(fieldName)).CopyToDataTable();
+        }
+
+
+        public class ColumnEquals : IEqualityComparer<DataRow>
+        {
+            public ColumnEquals(string[] sArr)
+            {
+                _sArr = sArr;
+            }
+
+
+            private string[] _sArr;
+
+
+            public bool Equals(DataRow x, DataRow y)
+            {
+                return !_sArr.Any(p => !x[p].Equals(y[p]));
+            }
+
+
+            public int GetHashCode(DataRow dr)
+            {
+                return dr.ToString().GetHashCode();
+            }
+        } 
+        #endregion
+        
+    }
+}
